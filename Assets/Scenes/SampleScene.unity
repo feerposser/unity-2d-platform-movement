@@ -537,19 +537,20 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  xSpeed: 5
   sideState: 0
-  wallDistance: 0.55
-  wallFriction: 0
-  jumpForce: 7
+  xSpeed: 5
+  jumpForce: 5
   fallMultiplaier: 5.5
   jumpTime: 0.2
   jumpCounter: 0
   jumpMultiplaier: 2
   isJumping: 0
-  isSliding: 0
-  sliderTimer: 0
-  maxSliderTime: 0.4
+  wallSlidingEndsAt: 0
+  wallDistance: 0.55
+  isWallSliding: 0
+  maxWallSliderTime: 0.3
+  freezeWallSliding: 0
+  freezeWallSlidingTimer: 0.3
 --- !u!212 &867897288
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -609,7 +610,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 867897285}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.73, y: -3.58, z: 0}
+  m_LocalPosition: {x: 1.28, y: -3.58, z: 0}
   m_LocalScale: {x: 0.98833674, y: 0.98833674, z: 0.98833674}
   m_Children:
   - {fileID: 519420032}
@@ -1099,19 +1100,20 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  xSpeed: 8
   sideState: 0
-  wallDistance: 0.55
-  wallFriction: 0
+  xSpeed: 8
   jumpForce: 7
   fallMultiplaier: 5.5
   jumpTime: 0.4
   jumpCounter: 0
   jumpMultiplaier: 2
   isJumping: 0
-  isSliding: 0
-  sliderTimer: 0
-  maxSliderTime: 0.4
+  wallSlidingEndsAt: 0
+  wallDistance: 0.55
+  isWallSliding: 0
+  maxWallSliderTime: 0.3
+  freezeWallSliding: 0
+  freezeWallSlidingTimer: 0.2
 --- !u!212 &1915977135
 SpriteRenderer:
   m_ObjectHideFlags: 0
