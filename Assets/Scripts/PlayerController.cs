@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public SideState sideState = SideState.right;
     public float xSpeed = 5;
+    public float xMoveImput;
 
     [Header("Jump")]
     public float jumpForce = 10;
@@ -50,6 +51,24 @@ public class PlayerController : MonoBehaviour
         Movement();
     }
 
+    void Movement()
+    {
+        ComputeMovement(out xMoveImput);
+
+        ComputeJump();
+
+        ComputeWallSliding(xMoveImput);
+
+        ComputeDash();
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(transform.position + new Vector3(0, -.5f, 0), new Vector3(.97f, .03f, 0));
+    }
+
+    /* --- Start Dash --- */
     IEnumerator ExecuteDash()
     {
         isDashing = true;
@@ -72,6 +91,9 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(vector * multiplier, ForceMode2D.Impulse);
     }
 
+    /* --- End Dash --- */
+
+    /* --- Start Wall Sliding --- */
     bool HaveWallContact()
     {
         RaycastHit2D rayWallCheck;
@@ -106,6 +128,48 @@ public class PlayerController : MonoBehaviour
 
         return false;
     }
+
+    IEnumerator FreezeWallSliding()
+    {
+        freezeWallSliding = true;
+        yield return new WaitForSeconds(freezeWallSlidingTimer);
+        freezeWallSliding = false;
+    }
+
+    private void ComputeWallSliding(float move)
+    {
+        if (!freezeWallSliding)
+        {
+            if (!IsGrounded() && HaveWallContact() && move != 0)
+            {
+                isWallSliding = true;
+                isJumping = false;
+                wallSlidingEndsAt = Time.time + maxWallSliderTime;
+            }
+
+            if (wallSlidingEndsAt < Time.time)
+            {
+                isWallSliding = false;
+                wallSlidingEndsAt = 0;
+            }
+
+            if (isWallSliding && !isJumping)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
+            }
+
+            if (isWallSliding && Input.GetButtonDown("Jump"))
+            {
+                isWallSliding = false;
+                Jump();
+                StartCoroutine("FreezeWallSliding");
+            }
+        }
+    }
+
+    /* --- End Wall Sliding --- */
+
+    /* --- Start Jump --- */
 
     void Jump(float jumpMultiplier = 1)
     {
@@ -161,43 +225,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    IEnumerator FreezeWallSliding()
-    {
-        freezeWallSliding = true;
-        yield return new WaitForSeconds(freezeWallSlidingTimer);
-        freezeWallSliding = false;
-    }
+    /* --- End Jump --- */
 
-    private void ComputeWallSliding(float move)
-    {
-        if (!freezeWallSliding)
-        {
-            if (!IsGrounded() && HaveWallContact() && move != 0)
-            {
-                isWallSliding = true;
-                isJumping = false;
-                wallSlidingEndsAt = Time.time + maxWallSliderTime;
-            }
-
-            if (wallSlidingEndsAt < Time.time)
-            {
-                isWallSliding = false;
-                wallSlidingEndsAt = 0;
-            }
-
-            if (isWallSliding && !isJumping)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
-            }
-
-            if (isWallSliding && Input.GetButtonDown("Jump"))
-            {
-                isWallSliding = false;
-                Jump();
-                StartCoroutine("FreezeWallSliding");
-            }
-        }
-    }
+    /* --- Start Move --- */
 
     void ComputeMovement(out float move)
     {
@@ -223,21 +253,5 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(move * xSpeed * moveMultiplier, rb.velocity.y);
     }
 
-    void Movement()
-    {
-        float move;
-        ComputeMovement(out move);
-
-        ComputeJump();
-
-        ComputeWallSliding(move);
-
-        ComputeDash();
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(transform.position + new Vector3(0, -.5f, 0), new Vector3(.97f, .03f, 0));
-    }
+    /* --- End Move --- */
 }
