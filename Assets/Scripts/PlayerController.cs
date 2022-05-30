@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     Animator anim;
 
     public enum SideState { right, left }
+    public enum JumpState { prepareToJump, jumping, prepareToFall, falling }
 
     [Header("Movement")]
     public SideState sideState = SideState.right;
@@ -18,12 +19,13 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
 
     [Header("Jump")]
-    public float jumpForce = 10;
-    public float fallMultiplaier;
-    public float jumpTime;
-    public float jumpCounter;
-    public float jumpMultiplaier;
+    public JumpState jumpState = JumpState.falling;
     public bool isJumping = false;
+    public float fallMultiplaier;
+    public float jumpMultiplaier;
+    public float jumpForce = 10;
+    public float jumpCounter;
+    public float jumpTime;
 
     Vector2 fallVectorGravity;
 
@@ -61,6 +63,8 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         IsGrounded();
+
+        ExecuteJump();
     }
 
     void  IsGrounded()
@@ -160,26 +164,25 @@ public class PlayerController : MonoBehaviour
     void Jump(float jumpMultiplier = 1)
     {
         rb.AddForce(new Vector2(rb.velocity.x, jumpForce * jumpMultiplier), ForceMode2D.Impulse);
+        jumpState = JumpState.jumping;
         isJumping = true;
         jumpCounter = 0;
     }
 
-    private void ComputeJump()
+    private void ExecuteJump()
     {
-        // Make the jump
-        if (Input.GetButtonDown("Jump") && isGrounded && !isJumping)
+        if (jumpState == JumpState.prepareToJump)
         {
             Jump();
-        } 
+        }
 
-        // bellow, compute the jump effect
-
-        // stop jumping and start to add -y velocity to the jump final momment depend on player releasing the jump button
-        if (Input.GetButtonUp("Jump"))
+        if (jumpState == JumpState.prepareToFall)
         {
+            jumpState = JumpState.falling;
             isJumping = false;
             jumpCounter = 0;
 
+            //reduce de y velocity if is going up
             if (rb.velocity.y > 0)
             {
                 rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.3f);
@@ -208,6 +211,19 @@ public class PlayerController : MonoBehaviour
         if (rb.velocity.y < 0)
         {
             rb.velocity -= fallVectorGravity * fallMultiplaier * Time.deltaTime;
+        }
+    }
+
+    private void ComputeJump()
+    {
+        if (Input.GetButtonDown("Jump") && isGrounded && !isJumping)
+        {
+            jumpState = JumpState.prepareToJump;
+        } 
+
+        if (Input.GetButtonUp("Jump"))
+        {
+            jumpState = JumpState.prepareToFall;
         }
     }
 
