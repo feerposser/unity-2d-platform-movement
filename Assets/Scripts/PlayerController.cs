@@ -9,8 +9,9 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     Animator anim;
 
-    public enum SideState { right, left }
     public enum JumpState { prepareToJump, jumping, prepareToFall, falling }
+    public enum DashState { startState, prepareToDash, dashing }
+    public enum SideState { right, left }
 
     [Header("Movement")]
     public SideState sideState = SideState.right;
@@ -38,9 +39,10 @@ public class PlayerController : MonoBehaviour
     public float freezeWallSlidingTimer = 0.4f;
 
     [Header("Dash")]
-    public float dashSpeed = 1;
+    public DashState dashState = DashState.startState;
     public bool isDashing = false;
     public float dashTime = 0.19f;
+    public float dashSpeed = 1;
 
     void Start()
     {
@@ -65,9 +67,11 @@ public class PlayerController : MonoBehaviour
         IsGrounded();
 
         ExecuteJump();
+
+        ExecuteDash();
     }
 
-    void  IsGrounded()
+    public void  IsGrounded()
     {
         Collider2D collider = Physics2D.OverlapBox(transform.position + new Vector3(0, -.5f, 0), new Vector3(.97f, .03f, 0), 0, groundLayer);
 
@@ -81,7 +85,13 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Dash --- */
-    IEnumerator ExecuteDash()
+    private void Dash(float multiplier = 1)
+    {
+        Vector2 vector = (sideState == SideState.right) ? Vector2.right * multiplier : Vector2.left * multiplier;
+        rb.AddForce(vector * multiplier, ForceMode2D.Impulse);
+    }
+
+    private IEnumerator CoroutineExecuteDash()
     {
         isDashing = true;
         Dash(dashSpeed);
@@ -89,22 +99,25 @@ public class PlayerController : MonoBehaviour
         isDashing = false;
     }
 
-    void ComputeDash()
+    private void ExecuteDash()
     {
-        if(Input.GetButtonDown("Fire1"))
+        if (dashState == DashState.prepareToDash)
         {
-            StartCoroutine("ExecuteDash");
+            dashState = DashState.dashing;
+            StartCoroutine("CoroutineExecuteDash");
         }
     }
 
-    void Dash(float multiplier = 1)
+    private void ComputeDash()
     {
-        Vector2 vector = (sideState == SideState.right) ? Vector2.right * multiplier : Vector2.left * multiplier;
-        rb.AddForce(vector * multiplier, ForceMode2D.Impulse);
+        if(Input.GetButtonDown("Fire1"))
+        {
+            dashState = DashState.prepareToDash;
+        }
     }
 
     /* --- Start Wall Sliding --- */
-    bool HaveWallContact()
+    public bool HaveWallContact()
     {
         RaycastHit2D rayWallCheck;
 
@@ -122,7 +135,7 @@ public class PlayerController : MonoBehaviour
         return rayWallCheck;
     }
 
-    IEnumerator FreezeWallSliding()
+    private IEnumerator FreezeWallSliding()
     {
         freezeWallSliding = true;
         yield return new WaitForSeconds(freezeWallSlidingTimer);
@@ -161,7 +174,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Jump --- */
-    void Jump(float jumpMultiplier = 1)
+    private void Jump(float jumpMultiplier = 1)
     {
         rb.AddForce(new Vector2(rb.velocity.x, jumpForce * jumpMultiplier), ForceMode2D.Impulse);
         jumpState = JumpState.jumping;
@@ -228,7 +241,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Move --- */
-    void ComputeMovement(out float move)
+    private void ComputeMovement(out float move)
     {
         move = Input.GetAxis("Horizontal");
 
@@ -247,7 +260,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Move(float move, float moveMultiplier = 1)
+    private void Move(float move, float moveMultiplier = 1)
     {
         rb.velocity = new Vector2(move * xSpeed * moveMultiplier, rb.velocity.y);
     }
