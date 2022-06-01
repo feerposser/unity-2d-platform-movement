@@ -64,6 +64,9 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+
+        ExecuteMovement(xMoveImput);
+
         IsGrounded();
 
         ExecuteJump();
@@ -241,27 +244,30 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Move --- */
+    private void Move(float move, float moveMultiplier = 1)
+    {
+        rb.velocity = new Vector2(move * xSpeed * moveMultiplier, rb.velocity.y);
+    }
+
+    private void ExecuteMovement(float move)
+    {
+        if(!isDashing)
+        {
+            Move(move);
+        }
+    }
+
     private void ComputeMovement(out float move)
     {
         move = Input.GetAxis("Horizontal");
 
-        if (!isDashing)
+        if (move > 0)
         {
-            Move(move);
-
-            if (move > 0)
-            {
-                sideState = SideState.right;
-            }
-            else if (move < 0)
-            {
-                sideState = SideState.left;
-            }
+            sideState = SideState.right;
         }
-    }
-
-    private void Move(float move, float moveMultiplier = 1)
-    {
-        rb.velocity = new Vector2(move * xSpeed * moveMultiplier, rb.velocity.y);
+        else if (move < 0)
+        {
+            sideState = SideState.left;
+        }
     }
 }
