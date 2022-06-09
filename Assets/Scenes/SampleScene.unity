@@ -133,7 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 138881706}
   - component: {fileID: 138881707}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Invisible Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -548,15 +548,16 @@ MonoBehaviour:
   jumpForce: 5
   jumpCounter: 0
   jumpTime: 0.35
-  wallSlidingEndsAt: 0
-  wallDistance: 0.55
-  isWallSliding: 0
+  freezeWallSlidingTimer: 0.4
   maxWallSliderTime: 0.3
   freezeWallSliding: 0
-  freezeWallSlidingTimer: 0.4
-  dashSpeed: 4.5
+  wallSlidingEndsAt: 0
+  isWallSliding: 0
+  wallDistance: 0.55
+  dashState: 0
   isDashing: 0
   dashTime: 0.19
+  dashSpeed: 4.5
 --- !u!212 &867897288
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1188,15 +1189,16 @@ MonoBehaviour:
   jumpForce: 7
   jumpCounter: 0
   jumpTime: 0.4
-  wallSlidingEndsAt: 0
-  wallDistance: 0.55
-  isWallSliding: 0
+  freezeWallSlidingTimer: 0.2
   maxWallSliderTime: 0.3
   freezeWallSliding: 0
-  freezeWallSlidingTimer: 0.2
-  dashSpeed: 1
+  wallSlidingEndsAt: 0
+  isWallSliding: 0
+  wallDistance: 0.55
+  dashState: 0
   isDashing: 0
   dashTime: 0.19
+  dashSpeed: 1
 --- !u!212 &1915977135
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1389,7 +1391,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2088146873}
   - component: {fileID: 2088146874}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Invisible Wall (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

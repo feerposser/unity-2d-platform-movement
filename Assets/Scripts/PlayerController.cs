@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     public LayerMask groundLayer;
 
+    Vector2 fallVectorGravity;
     Rigidbody2D rb;
     Animator anim;
 
@@ -28,15 +29,13 @@ public class PlayerController : MonoBehaviour
     public float jumpCounter;
     public float jumpTime;
 
-    Vector2 fallVectorGravity;
-
     [Header("Wall Sliding")]
-    public float wallSlidingEndsAt = 0;
-    public float wallDistance = .55f;
-    public bool isWallSliding = false;
+    public float freezeWallSlidingTimer = 0.4f;
     public float maxWallSliderTime = 0.3f;
     public bool freezeWallSliding = false;
-    public float freezeWallSlidingTimer = 0.4f;
+    public float wallSlidingEndsAt = 0;
+    public bool isWallSliding = false;
+    public float wallDistance = .55f;
 
     [Header("Dash")]
     public DashState dashState = DashState.startState;
@@ -64,7 +63,6 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-
         ExecuteMovement(xMoveImput);
 
         IsGrounded();
@@ -74,11 +72,29 @@ public class PlayerController : MonoBehaviour
         ExecuteDash();
     }
 
-    public void  IsGrounded()
+    private void  IsGrounded()
     {
         Collider2D collider = Physics2D.OverlapBox(transform.position + new Vector3(0, -.5f, 0), new Vector3(.97f, .03f, 0), 0, groundLayer);
 
         isGrounded = collider ? true : false;
+    }
+
+    public bool HaveWallContact()
+    {
+        RaycastHit2D rayWallCheck;
+
+        if (sideState == SideState.right)
+        {
+            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, -0.5f, 0), Vector2.right, wallDistance, groundLayer);
+            Debug.DrawRay(transform.position + new Vector3(0, -0.5f, 0), Vector2.right, Color.magenta);
+        }
+        else
+        {
+            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, -0.5f, 0), Vector2.left, wallDistance, groundLayer);
+            Debug.DrawRay(transform.position + new Vector3(0, -0.5f, 0), Vector2.left, Color.magenta);
+        }
+
+        return rayWallCheck;
     }
 
     private void OnDrawGizmos()
@@ -90,7 +106,9 @@ public class PlayerController : MonoBehaviour
     /* --- Start Dash --- */
     private void Dash(float multiplier = 1)
     {
-        Vector2 vector = (sideState == SideState.right) ? Vector2.right * multiplier : Vector2.left * multiplier;
+        Vector2 vector = (sideState == SideState.right) ? 
+            Vector2.right * multiplier : Vector2.left * multiplier;
+
         rb.AddForce(vector * multiplier, ForceMode2D.Impulse);
     }
 
@@ -111,7 +129,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ComputeDash()
+    protected void ComputeDash()
     {
         if(Input.GetButtonDown("Fire1"))
         {
@@ -120,24 +138,6 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Wall Sliding --- */
-    public bool HaveWallContact()
-    {
-        RaycastHit2D rayWallCheck;
-
-        if (sideState == SideState.right)
-        {
-            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, -0.5f, 0), Vector2.right, wallDistance, groundLayer);
-            Debug.DrawRay(transform.position + new Vector3(0, -0.5f, 0), Vector2.right, Color.magenta);
-        }
-        else
-        {
-            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, -0.5f, 0), Vector2.left, wallDistance, groundLayer);
-            Debug.DrawRay(transform.position + new Vector3(0, -0.5f, 0), Vector2.left, Color.magenta);
-        }
-
-        return rayWallCheck;
-    }
-
     private IEnumerator FreezeWallSliding()
     {
         freezeWallSliding = true;
@@ -145,7 +145,12 @@ public class PlayerController : MonoBehaviour
         freezeWallSliding = false;
     }
 
-    private void ComputeWallSliding(float move)
+    private void ExecuteWallSliding()
+    {
+
+    }
+
+    protected void ComputeWallSliding(float move)
     {
         if (!freezeWallSliding)
         {
@@ -170,7 +175,8 @@ public class PlayerController : MonoBehaviour
             if (isWallSliding && Input.GetButtonDown("Jump"))
             {
                 isWallSliding = false;
-                Jump();
+                jumpState = JumpState.prepareToJump;
+                /*Jump();*/
                 StartCoroutine("FreezeWallSliding");
             }
         }
@@ -230,7 +236,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ComputeJump()
+    protected void ComputeJump()
     {
         if (Input.GetButtonDown("Jump") && isGrounded && !isJumping)
         {
@@ -257,7 +263,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ComputeMovement(out float move)
+    protected void ComputeMovement(out float move)
     {
         move = Input.GetAxis("Horizontal");
 
