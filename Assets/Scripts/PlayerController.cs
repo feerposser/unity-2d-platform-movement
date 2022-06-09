@@ -176,7 +176,6 @@ public class PlayerController : MonoBehaviour
             {
                 isWallSliding = false;
                 jumpState = JumpState.prepareToJump;
-                /*Jump();*/
                 StartCoroutine("FreezeWallSliding");
             }
         }
