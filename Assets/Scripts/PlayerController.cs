@@ -228,6 +228,51 @@ public class PlayerController : MonoBehaviour
         jumpCounter = 0;
     }
 
+    private void JumpPrepareToFall()
+    {
+        jumpState = JumpState.FALLING;
+        isJumping = false;
+        jumpCounter = 0;
+
+        //reduce de y velocity if is going up
+        if (rb.velocity.y > 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.3f);
+        }
+    }
+
+    private void JumpJumping()
+    {
+        jumpCounter += Time.deltaTime;
+
+        if (jumpCounter > jumpTime) isJumping = true;
+
+        float t = jumpCounter / jumpTime;
+        float currentMultiplier = jumpMultiplaier;
+
+        if (t > 0.5)
+        {
+            currentMultiplier = jumpMultiplaier * (1 - t);
+        }
+
+        rb.velocity += new Vector2(rb.velocity.x, jumpForce * currentMultiplier) * Time.deltaTime;
+
+        jumpState = (rb.velocity.y < 0) ? JumpState.PREPARETOFALL : JumpState.JUMPING;
+    }
+
+    private void JumpFalling()
+    {
+        // verify if the velocity == 0 and stop falling state. set to defaul
+        if (isGrounded)
+        {
+            jumpState = JumpState.DEFAULT;
+        }
+        else if (!isWallSliding)
+        {
+            rb.velocity -= fallVectorGravity * fallMultiplaier * Time.deltaTime;
+        }
+    }
+
     private void ExecuteJump()
     {
         if (jumpState == JumpState.PREPARETOJUMP)
@@ -237,50 +282,19 @@ public class PlayerController : MonoBehaviour
 
         if (jumpState == JumpState.PREPARETOFALL)
         {
-            jumpState = JumpState.FALLING;
-            isJumping = false;
-            jumpCounter = 0;
-
-            //reduce de y velocity if is going up
-            if (rb.velocity.y > 0)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.3f);
-            }
+            JumpPrepareToFall();
         }
 
         // jump highier ou lower depend on jump time
         if (jumpState == JumpState.JUMPING) // if (rb.velocity.y > 0 && isJumping)
         {
-            jumpCounter += Time.deltaTime;
-
-            if (jumpCounter > jumpTime) isJumping = true;
-
-            float t = jumpCounter / jumpTime;
-            float currentMultiplier = jumpMultiplaier;
-
-            if (t > 0.5)
-            {
-                currentMultiplier = jumpMultiplaier * (1 - t);
-            }
-
-            rb.velocity += new Vector2(rb.velocity.x, jumpForce * currentMultiplier) * Time.deltaTime;
-
-            jumpState = (rb.velocity.y < 0) ? JumpState.PREPARETOFALL : JumpState.JUMPING;
+            JumpJumping();
         }
 
         // if the character is falling, accelerate the fall
         if (jumpState.Equals(JumpState.FALLING))
         {
-            // verify if the velocity == 0 and stop falling state. set to defaul
-            if (isGrounded)
-            {
-                jumpState = JumpState.DEFAULT;
-            }
-            else if (!isWallSliding)
-            {
-                rb.velocity -= fallVectorGravity * fallMultiplaier * Time.deltaTime;
-            }
-            
+            JumpFalling();
         }
     }
 
