@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     public enum JumpState { DEFAULT, PREPARETOJUMP, JUMPING, PREPARETOFALL, FALLING }
     public enum DashState { DEFAULT, PREPARETODASH, DASHING }
     public enum SideState { RIGHT, LEFT }
-    public enum WallslideState { STARTSTATE, PREPARETOSLIDE, SLIDING, PREPARETOJUMP }
+    public enum WallslideState { DEFAULT, PREPARETOSLIDE, SLIDING, PREPARETOJUMP }
 
     [Header("Movement")]
     public SideState sideState = SideState.RIGHT;
@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
     public float jumpTime;
 
     [Header("Wall Sliding")]
-    public WallslideState wallslideState = WallslideState.STARTSTATE;
+    public WallslideState wallslideState = WallslideState.DEFAULT;
     public float freezeWallSlidingTimer = 0.4f;
     public float maxWallSliderTime = 0.3f;
     public bool freezeWallSliding = false;
@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour
 
         ExecuteJump();
 
-        ExecuteWallSlide();
+        ExecuteWallSliding();
 
         ExecuteDash();
     }
@@ -149,7 +149,7 @@ public class PlayerController : MonoBehaviour
         freezeWallSliding = false;
     }
 
-    private void ExecuteWallSlide()
+    private void ExecuteWallSliding()
     {
         if (!freezeWallSliding)
         {
@@ -158,12 +158,12 @@ public class PlayerController : MonoBehaviour
                 wallslideState = WallslideState.SLIDING;
 
                 isJumping = false;
-                isWallSliding = true;
                 wallSlidingEndsAt = Time.time + maxWallSliderTime;
             }
 
             if (wallslideState == WallslideState.SLIDING)
             {
+                isWallSliding = true;
                 if (isWallSliding && !isJumping)
                 {
                     rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
@@ -173,7 +173,7 @@ public class PlayerController : MonoBehaviour
                 {
                     isWallSliding = false;
                     wallSlidingEndsAt = 0;
-                    wallslideState = WallslideState.STARTSTATE;
+                    wallslideState = WallslideState.DEFAULT;
                 }
             }
 
@@ -181,7 +181,7 @@ public class PlayerController : MonoBehaviour
             {
                 isWallSliding = false;
                 jumpState = JumpState.PREPARETOJUMP;
-                wallslideState = WallslideState.STARTSTATE;
+                wallslideState = WallslideState.DEFAULT;
 
                 StartCoroutine("FreezeWallSliding");
             }
@@ -192,9 +192,9 @@ public class PlayerController : MonoBehaviour
     {
         if (!freezeWallSliding)
         {
-            if (!isGrounded && HaveWallContact() && move != 0 && wallslideState == WallslideState.STARTSTATE)
+            if (!isGrounded && HaveWallContact() && move != 0 && wallslideState == WallslideState.DEFAULT)
             {
-                wallslideState = WallslideState.PREPARETOSLIDE;    
+                wallslideState = WallslideState.PREPARETOSLIDE; 
             }
 
             if (isWallSliding && Input.GetButtonDown("Jump"))
@@ -260,7 +260,8 @@ public class PlayerController : MonoBehaviour
             if (isGrounded)
             {
                 jumpState = JumpState.DEFAULT;
-            } else
+            }
+            else if (!isWallSliding)
             {
                 rb.velocity -= fallVectorGravity * fallMultiplaier * Time.deltaTime;
             }
