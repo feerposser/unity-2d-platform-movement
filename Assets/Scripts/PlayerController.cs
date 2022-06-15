@@ -149,41 +149,56 @@ public class PlayerController : MonoBehaviour
         freezeWallSliding = false;
     }
 
+    private void WallSlidingPrepareToSlide()
+    {
+        wallslideState = WallslideState.SLIDING;
+
+        isJumping = false;
+        wallSlidingEndsAt = Time.time + maxWallSliderTime;
+    }
+
+    private void WallSlidingSliding()
+    {
+        isWallSliding = true;
+        if (isWallSliding && !isJumping)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
+        }
+
+        if (wallSlidingEndsAt < Time.time)
+        {
+            isWallSliding = false;
+            wallSlidingEndsAt = 0;
+            wallslideState = WallslideState.DEFAULT;
+        }
+    }
+
+    private void WallSlidingPrepareToJump()
+    {
+        isWallSliding = false;
+        jumpState = JumpState.PREPARETOJUMP;
+        wallslideState = WallslideState.DEFAULT;
+
+        StartCoroutine("FreezeWallSliding");
+    }
+
     private void ExecuteWallSliding()
     {
         if (!freezeWallSliding)
         {
             if (wallslideState == WallslideState.PREPARETOSLIDE)
             {
-                wallslideState = WallslideState.SLIDING;
-
-                isJumping = false;
-                wallSlidingEndsAt = Time.time + maxWallSliderTime;
+                WallSlidingPrepareToSlide();
             }
 
             if (wallslideState == WallslideState.SLIDING)
             {
-                isWallSliding = true;
-                if (isWallSliding && !isJumping)
-                {
-                    rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
-                }
-
-                if (wallSlidingEndsAt < Time.time)
-                {
-                    isWallSliding = false;
-                    wallSlidingEndsAt = 0;
-                    wallslideState = WallslideState.DEFAULT;
-                }
+                WallSlidingSliding();
             }
 
             if (wallslideState == WallslideState.PREPARETOJUMP)
             {
-                isWallSliding = false;
-                jumpState = JumpState.PREPARETOJUMP;
-                wallslideState = WallslideState.DEFAULT;
-
-                StartCoroutine("FreezeWallSliding");
+                WallSlidingPrepareToJump();
             }
         }
     }
