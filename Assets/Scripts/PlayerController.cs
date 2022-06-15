@@ -269,12 +269,22 @@ public class PlayerController : MonoBehaviour
         }
         else if (!isWallSliding)
         {
-            rb.velocity -= fallVectorGravity * fallMultiplaier * Time.deltaTime;
+            Falling();
         }
+    }
+
+    private void Falling()
+    {
+        rb.velocity -= fallVectorGravity * fallMultiplaier * Time.deltaTime;
     }
 
     private void ExecuteJump()
     {
+        if (jumpState == JumpState.DEFAULT && rb.velocity.y < 0)
+        {
+            Falling();
+        }
+
         if (jumpState == JumpState.PREPARETOJUMP)
         {
             Jump();
