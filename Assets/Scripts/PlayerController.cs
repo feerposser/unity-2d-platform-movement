@@ -8,12 +8,11 @@ public class PlayerController : MonoBehaviour
 
     Vector2 fallVectorGravity;
     Rigidbody2D rb;
-    Animator anim;
 
+    public enum WallslideState { DEFAULT, PREPARETOSLIDE, SLIDING, PREPARETOJUMP, WALLJUMPING }
     public enum JumpState { DEFAULT, PREPARETOJUMP, JUMPING, PREPARETOFALL, FALLING }
     public enum DashState { DEFAULT, PREPARETODASH, DASHING }
     public enum SideState { RIGHT, LEFT }
-    public enum WallslideState { DEFAULT, PREPARETOSLIDE, SLIDING, PREPARETOJUMP }
 
     [Header("Movement")]
     public SideState sideState = SideState.RIGHT;
@@ -32,12 +31,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("Wall Sliding")]
     public WallslideState wallslideState = WallslideState.DEFAULT;
-    public float freezeWallSlidingTimer = 0.4f;
     public float maxWallSliderTime = 0.3f;
-    public bool freezeWallSliding = false;
     public float wallSlidingEndsAt = 0;
     public bool isWallSliding = false;
     public float wallDistance = .55f;
+    public bool isWallJumping = false;
 
     [Header("Dash")]
     public DashState dashState = DashState.DEFAULT;
@@ -49,7 +47,6 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         fallVectorGravity = new Vector2(rb.velocity.x, -Physics2D.gravity.y);
-        anim = GetComponent<Animator>();
     }
 
     void Update()
@@ -142,13 +139,6 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Wall Sliding --- */
-    private IEnumerator FreezeWallSliding()
-    {
-        freezeWallSliding = true;
-        yield return new WaitForSeconds(freezeWallSlidingTimer);
-        freezeWallSliding = false;
-    }
-
     private void WallSlidingPrepareToSlide()
     {
         wallslideState = WallslideState.SLIDING;
@@ -175,47 +165,45 @@ public class PlayerController : MonoBehaviour
 
     private void WallSlidingPrepareToJump()
     {
+        isWallJumping = true;
         isWallSliding = false;
-        jumpState = JumpState.PREPARETOJUMP;
-        wallslideState = WallslideState.DEFAULT;
-
-        StartCoroutine("FreezeWallSliding");
+        Jump(2);
+        wallslideState = WallslideState.WALLJUMPING;
     }
 
     private void ExecuteWallSliding()
     {
-        if (!freezeWallSliding)
+        if (wallslideState == WallslideState.PREPARETOSLIDE)
         {
-            if (wallslideState == WallslideState.PREPARETOSLIDE)
-            {
-                WallSlidingPrepareToSlide();
-            }
+            WallSlidingPrepareToSlide();
+        }
 
-            if (wallslideState == WallslideState.SLIDING)
-            {
-                WallSlidingSliding();
-            }
+        if (wallslideState == WallslideState.SLIDING)
+        {
+            WallSlidingSliding();
+        }
 
-            if (wallslideState == WallslideState.PREPARETOJUMP)
-            {
-                WallSlidingPrepareToJump();
-            }
+        if (wallslideState == WallslideState.PREPARETOJUMP)
+        {
+            WallSlidingPrepareToJump();
         }
     }
 
     protected void ComputeWallSliding(float move)
     {
-        if (!freezeWallSliding)
+        if (!isGrounded && HaveWallContact() && move != 0 && wallslideState == WallslideState.DEFAULT)
         {
-            if (!isGrounded && HaveWallContact() && move != 0 && wallslideState == WallslideState.DEFAULT)
-            {
-                wallslideState = WallslideState.PREPARETOSLIDE; 
-            }
+            wallslideState = WallslideState.PREPARETOSLIDE; 
+        }
 
-            if (isWallSliding && Input.GetButtonDown("Jump"))
-            {
-                wallslideState = WallslideState.PREPARETOJUMP;
-            }
+        if (isWallSliding && Input.GetButtonDown("Jump"))
+        {
+            wallslideState = WallslideState.PREPARETOJUMP;
+        }
+
+        if (Input.GetButtonUp("Jump") && isWallJumping)
+        {
+            wallslideState = WallslideState.DEFAULT;
         }
     }
 

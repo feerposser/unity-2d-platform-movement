@@ -537,7 +537,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  sideState: 1
+  sideState: 0
   xSpeed: 7.5
   xMoveImput: 0
   isGrounded: 0
@@ -548,12 +548,12 @@ MonoBehaviour:
   jumpForce: 5
   jumpCounter: 0
   jumpTime: 0.35
-  freezeWallSlidingTimer: 0.4
+  wallslideState: 0
   maxWallSliderTime: 0.3
-  freezeWallSliding: 0
   wallSlidingEndsAt: 0
   isWallSliding: 0
   wallDistance: 0.55
+  isWallJumping: 0
   dashState: 0
   isDashing: 0
   dashTime: 0.19
@@ -617,7 +617,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 867897285}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.44, y: -3.58, z: 0}
+  m_LocalPosition: {x: -5.83, y: -3.55, z: 0}
   m_LocalScale: {x: 0.98833674, y: 0.98833674, z: 0.98833674}
   m_Children:
   - {fileID: 519420032}
@@ -1189,12 +1189,12 @@ MonoBehaviour:
   jumpForce: 7
   jumpCounter: 0
   jumpTime: 0.4
-  freezeWallSlidingTimer: 0.2
+  wallslideState: 0
   maxWallSliderTime: 0.3
-  freezeWallSliding: 0
   wallSlidingEndsAt: 0
   isWallSliding: 0
   wallDistance: 0.55
+  isWallJumping: 0
   dashState: 0
   isDashing: 0
   dashTime: 0.19
