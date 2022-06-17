@@ -58,6 +58,14 @@ public class PlayerController : MonoBehaviour
         ComputeWallSliding(xMoveImput);
 
         ComputeDash();
+
+        if (Input.GetButtonDown("Fire3") && Time.timeScale == 1)
+        {
+            Time.timeScale = 0;
+        } else if (Input.GetButtonDown("Fire3") && Time.timeScale == 0)
+        {
+            Time.timeScale = 1;
+        }
     }
 
     void FixedUpdate()
@@ -152,6 +160,7 @@ public class PlayerController : MonoBehaviour
         isWallSliding = true;
         if (isWallSliding && !isJumping)
         {
+            Debug.Log("wallsliding");
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
         }
 
@@ -268,23 +277,24 @@ public class PlayerController : MonoBehaviour
 
     private void ExecuteJump()
     {
-        if (jumpState == JumpState.DEFAULT && rb.velocity.y < 0)
-        {
-            Falling();
-        }
-
-        if (jumpState == JumpState.PREPARETOJUMP)
+        if (jumpState.Equals(JumpState.PREPARETOJUMP))
         {
             Jump();
         }
 
-        if (jumpState == JumpState.PREPARETOFALL)
+        if (jumpState.Equals(JumpState.DEFAULT) && rb.velocity.y < 0)
+        {
+            jumpState = JumpState.PREPARETOFALL;
+            /*JumpFalling();*/
+        }
+
+        if (jumpState.Equals(JumpState.PREPARETOFALL))
         {
             JumpPrepareToFall();
         }
 
         // jump highier ou lower depend on jump time
-        if (jumpState == JumpState.JUMPING) // if (rb.velocity.y > 0 && isJumping)
+        if (jumpState.Equals(JumpState.JUMPING)) // if (rb.velocity.y > 0 && isJumping)
         {
             JumpJumping();
         }
