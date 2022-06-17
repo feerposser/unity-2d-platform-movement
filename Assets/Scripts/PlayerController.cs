@@ -282,10 +282,10 @@ public class PlayerController : MonoBehaviour
             Jump();
         }
 
+        // set falling when fall from a cliff;
         if (jumpState.Equals(JumpState.DEFAULT) && rb.velocity.y < 0)
         {
             jumpState = JumpState.PREPARETOFALL;
-            /*JumpFalling();*/
         }
 
         if (jumpState.Equals(JumpState.PREPARETOFALL))
