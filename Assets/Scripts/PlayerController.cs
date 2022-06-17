@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Wall Sliding")]
     public WallslideState wallslideState = WallslideState.DEFAULT;
-    public float maxWallSliderTime = 0.3f;
+    public float maxWallSliderTime = .15f;
     public float wallSlidingEndsAt = 0;
     public bool isWallSliding = false;
     public float wallDistance = .55f;
