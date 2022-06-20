@@ -32,10 +32,11 @@ public class PlayerController : MonoBehaviour
     [Header("Wall Sliding")]
     public WallslideState wallslideState = WallslideState.DEFAULT;
     public float maxWallSliderTime = .15f;
+    public float groundCheckDistance = .5f;
     public float wallSlidingEndsAt = 0;
     public bool isWallSliding = false;
-    public float wallDistance = .55f;
     public bool isWallJumping = false;
+    public float wallDistance = .55f;
 
     [Header("Dash")]
     public DashState dashState = DashState.DEFAULT;
@@ -94,13 +95,13 @@ public class PlayerController : MonoBehaviour
 
         if (sideState == SideState.RIGHT)
         {
-            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, -0.5f, 0), Vector2.right, wallDistance, groundLayer);
-            Debug.DrawRay(transform.position + new Vector3(0, -0.5f, 0), Vector2.right, Color.magenta);
+            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.right, wallDistance, groundLayer);
+            Debug.DrawRay(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.right, Color.magenta);
         }
         else
         {
-            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, -0.5f, 0), Vector2.left, wallDistance, groundLayer);
-            Debug.DrawRay(transform.position + new Vector3(0, -0.5f, 0), Vector2.left, Color.magenta);
+            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.left, wallDistance, groundLayer);
+            Debug.DrawRay(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.left, Color.magenta);
         }
 
         return rayWallCheck;
@@ -160,7 +161,6 @@ public class PlayerController : MonoBehaviour
         isWallSliding = true;
         if (isWallSliding && !isJumping)
         {
-            Debug.Log("wallsliding");
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
         }
 
@@ -323,6 +323,7 @@ public class PlayerController : MonoBehaviour
     private void Move(float move, float moveMultiplier = 1)
     {
         rb.velocity = new Vector2(move * xSpeed * moveMultiplier, rb.velocity.y);
+        //Debug.Log("move: " + rb.velocity.y);
     }
 
     private void ExecuteMovement(float move)
