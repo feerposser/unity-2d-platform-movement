@@ -1,15 +1,27 @@
 <div align="center">
-    <h1>Public APIs</h1>
-    <i>A collective list of free APIs for use in software and web development</i>
+    <h1>unity-2d-platform-movement</h1>
+    <p>
+        A library for dealing with movement on platforms in Unity 2D
+    </p>
 </div>
 
-[![GitHub release](https://img.shields.io/github/v/release/nginx-proxy/nginx-proxy)](https://github.com/nginx-proxy/nginx-proxy/releases)
-https://shields.io/
+<div align="center">
 
-# unity-2d-platform-movement
-about the library
+[![GitHub release](https://img.shields.io/badge/release-v1.5-orange)](https://github.com/feerposser/unity-2d-platform-movement/releases)
 
-## how it works
+</div>
+
+
+
+## Features
+
+- Side movement (left and right)
+- Jumping (depending on time that player press the button, jump and falling)
+- Dash (sides, while jumping)
+- Wall sliding
+- Wall jumping
+
+## how it work
 states
 
 ## how to used it
@@ -41,3 +53,6 @@ gifs or images
 - [ ] issue and pull request template
 - [ ] set sliders for the atribute values in the Unity editor
 - [ ] push to the Unity Store
+
+## curiosity
+This library is beeing developed becouse I seeing a lot of tutorials not fallowing the software development good practices. So I decided to slowly start create a lib for handling the most important part of the player: the move.
