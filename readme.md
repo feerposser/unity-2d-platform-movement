@@ -11,9 +11,7 @@
 
 </div>
 
-
-
-## Features
+> ## Features
 
 - Side movement (left and right)
 - Jumping (depending on time that player press the button, jump and falling)
@@ -21,10 +19,10 @@
 - Wall sliding
 - Wall jumping
 
-## how it work
+> ## how it works
 states
 
-## how to used it
+> ## how to used it
 
 ### installing
 
@@ -43,10 +41,10 @@ extends de main class
 ### docs and support
 wiki and docs
 
-## images
+>## images
 gifs or images
 
-## status
+>## status
 - [ ] creating readme
 - [ ] choose the license
 - [ ] 1st version of the docs and wiki
@@ -54,5 +52,5 @@ gifs or images
 - [ ] set sliders for the atribute values in the Unity editor
 - [ ] push to the Unity Store
 
-## curiosity
+>## curiosity
 This library is beeing developed becouse I seeing a lot of tutorials not fallowing the software development good practices. So I decided to slowly start create a lib for handling the most important part of the player: the move.
