@@ -16,23 +16,23 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement")]
     public SideState sideState = SideState.RIGHT;
-    public float xSpeed = 5;
+    public float xSpeed = 7.5f;
     public float xMoveImput;
     public bool isGrounded;
 
     [Header("Jump")]
     public JumpState jumpState = JumpState.FALLING;
     public bool isJumping = false;
-    public float fallMultiplaier;
-    public float jumpMultiplaier;
-    public float jumpForce = 10;
+    public float fallMultiplaier = 5.5f;
+    public float jumpMultiplaier = 2;
+    public float jumpForce = 7;
     public float jumpCounter;
-    public float jumpTime;
+    public float jumpTime =.35f;
 
     [Header("Wall Sliding")]
     public WallslideState wallslideState = WallslideState.DEFAULT;
-    public float maxWallSliderTime = .15f;
-    public float groundCheckDistance = .5f;
+    public float maxWallSliderTime = .3f;
+    public float groundCheckDistance = -.5f;
     public float wallSlidingEndsAt = 0;
     public bool isWallSliding = false;
     public bool isWallJumping = false;
@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
     public DashState dashState = DashState.DEFAULT;
     public bool isDashing = false;
     public float dashTime = 0.19f;
-    public float dashSpeed = 1;
+    public float dashSpeed = 4.5f;
 
     void Start()
     {
