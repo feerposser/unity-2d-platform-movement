@@ -15,34 +15,34 @@ public class PlayerController : MonoBehaviour
     public enum SideState { RIGHT, LEFT }
 
     [Header("Movement")]
-    public SideState sideState = SideState.RIGHT;
-    public float xSpeed = 7.5f;
-    public float xMoveImput;
-    public bool isGrounded;
+    [SerializeField] SideState sideState = SideState.RIGHT;
+    [SerializeField] float xSpeed = 7.5f;
+    [SerializeField] float xMoveImput;
+    [SerializeField] bool isGrounded;
 
     [Header("Jump")]
-    public JumpState jumpState = JumpState.FALLING;
-    public bool isJumping = false;
-    public float fallMultiplaier = 5.5f;
-    public float jumpMultiplaier = 2;
-    public float jumpForce = 7;
-    public float jumpCounter;
-    public float jumpTime = .35f;
+    [SerializeField] JumpState jumpState = JumpState.FALLING;
+    [SerializeField] bool isJumping = false;
+    [SerializeField] float fallMultiplaier = 5.5f;
+    [SerializeField] float jumpMultiplaier = 2;
+    [SerializeField] float jumpForce = 7;
+    [SerializeField] float jumpCounter;
+    [SerializeField] float jumpTime = .35f;
 
     [Header("Wall Sliding")]
-    public WallslideState wallslideState = WallslideState.DEFAULT;
-    public float maxWallSliderTime = .3f;
-    public float groundCheckDistance = -.5f;
-    public float wallSlidingEndsAt = 0;
-    public bool isWallSliding = false;
-    public bool isWallJumping = false;
-    public float wallDistance = .55f;
+    [SerializeField] WallslideState wallslideState = WallslideState.DEFAULT;
+    [SerializeField] float maxWallSliderTime = .3f;
+    [SerializeField] float groundCheckDistance = -.5f;
+    [SerializeField] float wallSlidingEndsAt = 0;
+    [SerializeField] bool isWallSliding = false;
+    [SerializeField] bool isWallJumping = false;
+    [SerializeField] float wallDistance = .55f;
 
     [Header("Dash")]
-    public DashState dashState = DashState.DEFAULT;
-    public bool isDashing = false;
-    public float dashTime = 0.19f;
-    public float dashSpeed = 4.5f;
+    [SerializeField] DashState dashState = DashState.DEFAULT;
+    [SerializeField] bool isDashing = false;
+    [SerializeField] float dashTime = 0.19f;
+    [SerializeField] float dashSpeed = 4.5f;
 
     void Start()
     {
@@ -61,13 +61,9 @@ public class PlayerController : MonoBehaviour
         ComputeDash();
 
         if (Input.GetButtonDown("Fire3") && Time.timeScale == 1)
-        {
             Time.timeScale = 0;
-        }
         else if (Input.GetButtonDown("Fire3") && Time.timeScale == 0)
-        {
             Time.timeScale = 1;
-        }
     }
 
     void FixedUpdate()
@@ -95,15 +91,9 @@ public class PlayerController : MonoBehaviour
         RaycastHit2D rayWallCheck;
 
         if (sideState == SideState.RIGHT)
-        {
             rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.right, wallDistance, groundLayer);
-            Debug.DrawRay(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.right, Color.magenta);
-        }
         else
-        {
             rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.left, wallDistance, groundLayer);
-            Debug.DrawRay(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.left, Color.magenta);
-        }
 
         return rayWallCheck;
     }
@@ -112,6 +102,10 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(transform.position + new Vector3(0, -.5f, 0), new Vector3(.97f, .03f, 0));
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawRay(transform.position + new Vector3(0, groundCheckDistance, 0), 
+            sideState.Equals(SideState.RIGHT) ? Vector2.right : Vector2.left);
     }
 
     /* --- Start Dash --- */
@@ -142,10 +136,7 @@ public class PlayerController : MonoBehaviour
 
     protected void ComputeDash()
     {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            dashState = DashState.PREPARETODASH;
-        }
+        if (Input.GetButtonDown("Fire1")) dashState = DashState.PREPARETODASH;
     }
 
     /* --- Start Wall Sliding --- */
@@ -161,10 +152,8 @@ public class PlayerController : MonoBehaviour
     {
         isWallSliding = true;
         if (isWallSliding && !isJumping)
-        {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
-        }
-
+        
         if (wallSlidingEndsAt < Time.time)
         {
             isWallSliding = false;
@@ -184,42 +173,28 @@ public class PlayerController : MonoBehaviour
     private void ExecuteWallSliding()
     {
         if (wallslideState.Equals(WallslideState.DEFAULT))
-        {
             isWallJumping = false;
-        }
 
         if (wallslideState.Equals(WallslideState.PREPARETOSLIDE))
-        {
             WallSlidingPrepareToSlide();
-        }
 
         if (wallslideState.Equals(WallslideState.SLIDING))
-        {
             WallSlidingSliding();
-        }
 
         if (wallslideState.Equals(WallslideState.PREPARETOJUMP))
-        {
             WallSlidingPrepareToJump();
-        }
     }
 
     protected void ComputeWallSliding(float move)
     {
         if (!isGrounded && HaveWallContact() && move != 0 && wallslideState.Equals(WallslideState.DEFAULT))
-        {
             wallslideState = WallslideState.PREPARETOSLIDE;
-        }
 
         if (isWallSliding && Input.GetButtonDown("Jump"))
-        {
             wallslideState = WallslideState.PREPARETOJUMP;
-        }
 
         if (Input.GetButtonUp("Jump") && isWallJumping)
-        {
             wallslideState = WallslideState.DEFAULT;
-        }
     }
 
     /* --- Start Jump --- */
@@ -239,9 +214,7 @@ public class PlayerController : MonoBehaviour
 
         //reduce de y velocity if is going up
         if (rb.velocity.y > 0)
-        {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.3f);
-        }
     }
 
     private void JumpJumping()
@@ -254,9 +227,7 @@ public class PlayerController : MonoBehaviour
         float currentMultiplier = jumpMultiplaier;
 
         if (t > 0.5)
-        {
             currentMultiplier = jumpMultiplaier * (1 - t);
-        }
 
         rb.velocity += new Vector2(rb.velocity.x, jumpForce * currentMultiplier) * Time.deltaTime;
 
@@ -267,13 +238,9 @@ public class PlayerController : MonoBehaviour
     {
         // verify if the velocity == 0 and stop falling state. set to defaul
         if (isGrounded)
-        {
             jumpState = JumpState.DEFAULT;
-        }
         else if (!isWallSliding)
-        {
             Falling();
-        }
     }
 
     private void Falling()
@@ -284,45 +251,31 @@ public class PlayerController : MonoBehaviour
     private void ExecuteJump()
     {
         if (jumpState.Equals(JumpState.PREPARETOJUMP))
-        {
             Jump();
-        }
 
         // set falling when fall from a cliff;
         if (jumpState.Equals(JumpState.DEFAULT) && rb.velocity.y < 0)
-        {
             jumpState = JumpState.PREPARETOFALL;
-        }
 
         if (jumpState.Equals(JumpState.PREPARETOFALL))
-        {
             JumpPrepareToFall();
-        }
 
         // jump highier ou lower depend on jump time
         if (jumpState.Equals(JumpState.JUMPING)) // if (rb.velocity.y > 0 && isJumping)
-        {
             JumpJumping();
-        }
 
         // if the character is falling, accelerate the fall
         if (jumpState.Equals(JumpState.FALLING))
-        {
             JumpFalling();
-        }
     }
 
     protected void ComputeJump()
     {
         if (Input.GetButtonDown("Jump") && isGrounded && !isJumping)
-        {
             jumpState = JumpState.PREPARETOJUMP;
-        }
 
         if (Input.GetButtonUp("Jump"))
-        {
             jumpState = JumpState.PREPARETOFALL;
-        }
     }
 
     /* --- Start Move --- */
@@ -335,9 +288,7 @@ public class PlayerController : MonoBehaviour
     private void ExecuteMovement(float move)
     {
         if (!isDashing)
-        {
             Move(move);
-        }
     }
 
     protected void ComputeMovement(out float move)
@@ -345,12 +296,8 @@ public class PlayerController : MonoBehaviour
         move = Input.GetAxis("Horizontal");
 
         if (move > 0)
-        {
             sideState = SideState.RIGHT;
-        }
         else if (move < 0)
-        {
             sideState = SideState.LEFT;
-        }
     }
 }
