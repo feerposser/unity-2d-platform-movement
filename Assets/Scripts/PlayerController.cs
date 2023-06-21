@@ -22,12 +22,13 @@ public class PlayerController : MonoBehaviour
 
     [Header("Jump")]
     [SerializeField] JumpState jumpState = JumpState.FALLING;
-    [SerializeField] bool isJumping = false;
     [SerializeField] float fallMultiplaier = 5.5f;
     [SerializeField] float jumpMultiplaier = 2;
+    [SerializeField] float jumpTime = .35f;
+    [SerializeField] float fallingCounter;
     [SerializeField] float jumpForce = 7;
     [SerializeField] float jumpCounter;
-    [SerializeField] float jumpTime = .35f;
+    [SerializeField] float fallingTime;
 
     [Header("Wall Sliding")]
     [SerializeField] WallslideState wallslideState = WallslideState.DEFAULT;
@@ -143,15 +144,13 @@ public class PlayerController : MonoBehaviour
     private void WallSlidingPrepareToSlide()
     {
         wallslideState = WallslideState.SLIDING;
-
-        isJumping = false;
         wallSlidingEndsAt = Time.time + maxWallSliderTime;
     }
 
     private void WallSlidingSliding()
     {
         isWallSliding = true;
-        if (isWallSliding && !isJumping)
+        if (isWallSliding && !jumpState.Equals(JumpState.JUMPING))
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.9f);
         
         if (wallSlidingEndsAt < Time.time)
@@ -202,24 +201,18 @@ public class PlayerController : MonoBehaviour
     {
         rb.AddForce(new Vector2(rb.velocity.x, jumpForce * jumpMultiplier), ForceMode2D.Impulse);
         jumpState = JumpState.JUMPING;
-        isJumping = true;
         jumpCounter = 0;
     }
 
     private void JumpPrepareToFall()
     {
+        fallingTime = 0;
         jumpState = JumpState.FALLING;
-        isJumping = false;
-        jumpCounter = 0;
-
-        //reduce de y velocity if is going up
-        if (rb.velocity.y > 0)
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.3f);
     }
 
     private void JumpJumping()
     {
-        jumpCounter += Time.deltaTime;
+        /*jumpCounter += Time.deltaTime;
 
         if (jumpCounter > jumpTime) isJumping = true;
 
@@ -229,18 +222,21 @@ public class PlayerController : MonoBehaviour
         if (t > 0.5)
             currentMultiplier = jumpMultiplaier * (1 - t);
 
-        rb.velocity += new Vector2(rb.velocity.x, jumpForce * currentMultiplier) * Time.deltaTime;
+        rb.velocity += new Vector2(rb.velocity.x, jumpForce * currentMultiplier) * Time.deltaTime;*/
 
-        jumpState = (rb.velocity.y < 0) ? JumpState.PREPARETOFALL : JumpState.JUMPING;
+        if (rb.velocity.y < 0) jumpState = JumpState.PREPARETOFALL;
     }
 
     private void JumpFalling()
     {
-        // verify if the velocity == 0 and stop falling state. set to defaul
-        if (isGrounded)
-            jumpState = JumpState.DEFAULT;
+        fallingTime += Time.deltaTime;
+        
+        if (fallingTime > fallingCounter && rb.velocity.y > 0)
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.3f);
         else if (!isWallSliding)
             Falling();
+
+        if (isGrounded) jumpState = JumpState.DEFAULT;
     }
 
     private void Falling()
@@ -261,7 +257,7 @@ public class PlayerController : MonoBehaviour
             JumpPrepareToFall();
 
         // jump highier ou lower depend on jump time
-        if (jumpState.Equals(JumpState.JUMPING)) // if (rb.velocity.y > 0 && isJumping)
+        if (jumpState.Equals(JumpState.JUMPING))
             JumpJumping();
 
         // if the character is falling, accelerate the fall
@@ -271,7 +267,7 @@ public class PlayerController : MonoBehaviour
 
     protected void ComputeJump()
     {
-        if (Input.GetButtonDown("Jump") && isGrounded && !isJumping)
+        if (Input.GetButtonDown("Jump") && isGrounded && !jumpState.Equals(JumpState.JUMPING))
             jumpState = JumpState.PREPARETOJUMP;
 
         if (Input.GetButtonUp("Jump"))
