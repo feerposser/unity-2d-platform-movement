@@ -19,15 +19,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float xSpeed = 7.5f;
     [SerializeField] float xMoveImput;
     [SerializeField] bool isGrounded;
+    float move;
 
     [Header("Jump")]
     [SerializeField] JumpState jumpState = JumpState.FALLING;
-    [SerializeField] float fallMultiplaier = 5.5f;
-    [SerializeField] float jumpMultiplaier = 2;
+    [SerializeField] float horizontalMultiplier = .85f;
+    [SerializeField] float fallMultiplier = 5.5f;
+    [SerializeField] float jumpMultiplier = 2;
     [SerializeField] float jumpTime = .35f;
     [SerializeField] float fallingCounter;
     [SerializeField] float jumpForce = 7;
-    [SerializeField] float jumpCounter;
     [SerializeField] float fallingTime;
 
     [Header("Wall Sliding")]
@@ -53,11 +54,11 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        ComputeMovement(out xMoveImput);
+        ComputeMovement();
 
         ComputeJump();
 
-        ComputeWallSliding(xMoveImput);
+        ComputeWallSliding();
 
         ComputeDash();
 
@@ -69,7 +70,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        ExecuteMovement(xMoveImput);
+        ExecuteMovement();
 
         IsGrounded();
 
@@ -165,7 +166,7 @@ public class PlayerController : MonoBehaviour
     {
         isWallJumping = true;
         isWallSliding = false;
-        Jump(2);
+        Jump(.8f);
         wallslideState = WallslideState.WALLJUMPING;
     }
 
@@ -184,7 +185,7 @@ public class PlayerController : MonoBehaviour
             WallSlidingPrepareToJump();
     }
 
-    protected void ComputeWallSliding(float move)
+    protected void ComputeWallSliding()
     {
         if (!isGrounded && HaveWallContact() && move != 0 && wallslideState.Equals(WallslideState.DEFAULT))
             wallslideState = WallslideState.PREPARETOSLIDE;
@@ -197,11 +198,11 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Jump --- */
-    private void Jump(float jumpMultiplier = 1)
+    private void Jump(float newMultiplaier=0)
     {
-        rb.AddForce(new Vector2(rb.velocity.x, jumpForce * jumpMultiplier), ForceMode2D.Impulse);
+        float multiplaier = newMultiplaier != 0 ? newMultiplaier : jumpMultiplier;
+        rb.AddForce(new Vector2(rb.velocity.x, jumpForce * multiplaier), ForceMode2D.Impulse);
         jumpState = JumpState.JUMPING;
-        jumpCounter = 0;
     }
 
     private void JumpPrepareToFall()
@@ -212,18 +213,7 @@ public class PlayerController : MonoBehaviour
 
     private void JumpJumping()
     {
-        /*jumpCounter += Time.deltaTime;
-
-        if (jumpCounter > jumpTime) isJumping = true;
-
-        float t = jumpCounter / jumpTime;
-        float currentMultiplier = jumpMultiplaier;
-
-        if (t > 0.5)
-            currentMultiplier = jumpMultiplaier * (1 - t);
-
-        rb.velocity += new Vector2(rb.velocity.x, jumpForce * currentMultiplier) * Time.deltaTime;*/
-
+        rb.velocity = new Vector2(rb.velocity.x * horizontalMultiplier, rb.velocity.y);
         if (rb.velocity.y < 0) jumpState = JumpState.PREPARETOFALL;
     }
 
@@ -239,30 +229,24 @@ public class PlayerController : MonoBehaviour
         if (isGrounded) jumpState = JumpState.DEFAULT;
     }
 
-    private void Falling()
-    {
-        rb.velocity -= fallVectorGravity * fallMultiplaier * Time.deltaTime;
-    }
+    private void Falling() =>
+        rb.velocity -= fallVectorGravity * fallMultiplier * Time.deltaTime;
 
     private void ExecuteJump()
     {
-        if (jumpState.Equals(JumpState.PREPARETOJUMP))
-            Jump();
+        if (jumpState.Equals(JumpState.PREPARETOJUMP)) Jump();
 
-        // set falling when fall from a cliff;
+        // set preparetofall when falling from a cliff;
         if (jumpState.Equals(JumpState.DEFAULT) && rb.velocity.y < 0)
             jumpState = JumpState.PREPARETOFALL;
 
-        if (jumpState.Equals(JumpState.PREPARETOFALL))
-            JumpPrepareToFall();
+        if (jumpState.Equals(JumpState.PREPARETOFALL)) JumpPrepareToFall();
 
         // jump highier ou lower depend on jump time
-        if (jumpState.Equals(JumpState.JUMPING))
-            JumpJumping();
+        if (jumpState.Equals(JumpState.JUMPING)) JumpJumping();
 
         // if the character is falling, accelerate the fall
-        if (jumpState.Equals(JumpState.FALLING))
-            JumpFalling();
+        if (jumpState.Equals(JumpState.FALLING)) JumpFalling();
     }
 
     protected void ComputeJump()
@@ -270,27 +254,23 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded && !jumpState.Equals(JumpState.JUMPING))
             jumpState = JumpState.PREPARETOJUMP;
 
-        if (Input.GetButtonUp("Jump"))
+        if (Input.GetButtonUp("Jump") && jumpState.Equals(JumpState.JUMPING))
             jumpState = JumpState.PREPARETOFALL;
     }
 
     /* --- Start Move --- */
-    private void Move(float move, float moveMultiplier = 1)
-    {
-        rb.velocity = new Vector2(move * xSpeed * moveMultiplier, rb.velocity.y);
-        //Debug.Log("move: " + rb.velocity.y);
-    }
+    private void Move() =>
+        rb.velocity = new Vector2(move * xSpeed, rb.velocity.y);
 
-    private void ExecuteMovement(float move)
+    private void ExecuteMovement()
     {
         if (!isDashing)
-            Move(move);
+            Move();
     }
 
-    protected void ComputeMovement(out float move)
+    protected void ComputeMovement()
     {
         move = Input.GetAxis("Horizontal");
-
         if (move > 0)
             sideState = SideState.RIGHT;
         else if (move < 0)
