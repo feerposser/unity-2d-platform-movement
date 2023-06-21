@@ -14,6 +14,10 @@ public class PlayerController : MonoBehaviour
     public enum DashState { DEFAULT, PREPARETODASH, DASHING }
     public enum SideState { RIGHT, LEFT }
 
+    [Header("Grounded")]
+    [SerializeField] Vector3 groundedCenter;
+    [SerializeField] Vector2 groundBoxDetector;
+
     [Header("Movement")]
     [SerializeField] SideState sideState = SideState.RIGHT;
     [SerializeField] float xSpeed = 7.5f;
@@ -39,12 +43,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] bool isWallSliding = false;
     [SerializeField] bool isWallJumping = false;
     [SerializeField] float wallDistance = .55f;
+    [SerializeField] float wallSlideJumpForce;
 
     [Header("Dash")]
     [SerializeField] DashState dashState = DashState.DEFAULT;
     [SerializeField] bool isDashing = false;
     [SerializeField] float dashTime = 0.19f;
     [SerializeField] float dashSpeed = 4.5f;
+
+    [Header("Gizmos colors")]
+    [SerializeField] Color groundBoxDetectorColor;
+    [SerializeField] Color wallslideRayDetectorColor;
+
 
     void Start()
     {
@@ -83,30 +93,26 @@ public class PlayerController : MonoBehaviour
 
     private void IsGrounded()
     {
-        Collider2D collider = Physics2D.OverlapBox(transform.position + new Vector3(0, -.5f, 0), new Vector3(.97f, .03f, 0), 0, groundLayer);
-
+        Collider2D collider = Physics2D.OverlapBox(transform.position + groundedCenter, groundBoxDetector, 0, groundLayer);
         isGrounded = collider ? true : false;
     }
 
     public bool HaveWallContact()
     {
         RaycastHit2D rayWallCheck;
-
-        if (sideState == SideState.RIGHT)
-            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.right, wallDistance, groundLayer);
-        else
-            rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, groundCheckDistance, 0), Vector2.left, wallDistance, groundLayer);
+        Vector2 direction = sideState == SideState.RIGHT ? Vector2.right : Vector2.left;
+        rayWallCheck = Physics2D.Raycast(transform.position + new Vector3(0, groundCheckDistance, 0), direction, wallDistance, groundLayer);
 
         return rayWallCheck;
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(transform.position + new Vector3(0, -.5f, 0), new Vector3(.97f, .03f, 0));
+        Gizmos.color = new Color(groundBoxDetectorColor.r, groundBoxDetectorColor.g, groundBoxDetectorColor.b);
+        Gizmos.DrawCube(transform.position + groundedCenter, groundBoxDetector);
 
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawRay(transform.position + new Vector3(0, groundCheckDistance, 0), 
+        Gizmos.color = new Color(wallslideRayDetectorColor.r, wallslideRayDetectorColor.g, wallslideRayDetectorColor.b);
+        Gizmos.DrawRay(transform.position + new Vector3(0, groundCheckDistance, 0),
             sideState.Equals(SideState.RIGHT) ? Vector2.right : Vector2.left);
     }
 
@@ -166,7 +172,7 @@ public class PlayerController : MonoBehaviour
     {
         isWallJumping = true;
         isWallSliding = false;
-        Jump(.8f);
+        Jump(10, wallSlideJumpForce);
         wallslideState = WallslideState.WALLJUMPING;
     }
 
@@ -198,10 +204,15 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Jump --- */
-    private void Jump(float newMultiplaier=0)
+    private void Jump(float horizontalMultiplier=50, float verticalMultiplier=0)
     {
-        float multiplaier = newMultiplaier != 0 ? newMultiplaier : jumpMultiplier;
-        rb.AddForce(new Vector2(rb.velocity.x, jumpForce * multiplaier), ForceMode2D.Impulse);
+        verticalMultiplier = verticalMultiplier != 0 ? verticalMultiplier : jumpMultiplier;
+        horizontalMultiplier = horizontalMultiplier != 0 ? horizontalMultiplier : 1;
+
+        
+        rb.AddForce(new Vector2(horizontalMultiplier, rb.velocity.y), ForceMode2D.Impulse);
+        //rb.AddForce(new Vector2(rb.velocity.x, jumpForce * verticalMultiplier), ForceMode2D.Impulse);
+        
         jumpState = JumpState.JUMPING;
     }
 
