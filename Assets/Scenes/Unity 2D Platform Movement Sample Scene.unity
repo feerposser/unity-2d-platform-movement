@@ -2280,10 +2280,9 @@ MonoBehaviour:
   jumpState: 3
   horizontalMultiplier: 0.85
   fallMultiplier: 5.5
-  jumpMultiplier: 1.3
   jumpTime: 0.35
   fallingCounter: 0.3
-  jumpForce: 7
+  jumpForce: 8
   fallingTime: 0
   wallslideState: 0
   maxWallSliderTime: 0.3

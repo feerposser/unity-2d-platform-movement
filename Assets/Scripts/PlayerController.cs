@@ -29,7 +29,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] JumpState jumpState = JumpState.FALLING;
     [SerializeField] float horizontalMultiplier = .85f;
     [SerializeField] float fallMultiplier = 5.5f;
-    [SerializeField] float jumpMultiplier = 2;
     [SerializeField] float jumpTime = .35f;
     [SerializeField] float fallingCounter;
     [SerializeField] float jumpForce = 7;
@@ -80,6 +79,10 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        float ty = Mathf.Clamp(rb.velocity.y, float.MinValue, 11);
+        rb.velocity = new Vector2(rb.velocity.x, ty);
+        //if (rb.velocity.y > 0) Debug.Log(rb.velocity.y);
+
         ExecuteMovement();
 
         IsGrounded();
@@ -172,7 +175,8 @@ public class PlayerController : MonoBehaviour
     {
         isWallJumping = true;
         isWallSliding = false;
-        Jump(10, wallSlideJumpForce);
+        Jump(wallSlideJumpForce);
+        Debug.Log("wall jumping");
         wallslideState = WallslideState.WALLJUMPING;
     }
 
@@ -204,15 +208,10 @@ public class PlayerController : MonoBehaviour
     }
 
     /* --- Start Jump --- */
-    private void Jump(float horizontalMultiplier=50, float verticalMultiplier=0)
+    private void Jump(float verticalMultiplier=0)
     {
-        verticalMultiplier = verticalMultiplier != 0 ? verticalMultiplier : jumpMultiplier;
-        horizontalMultiplier = horizontalMultiplier != 0 ? horizontalMultiplier : 1;
-
-        
-        rb.AddForce(new Vector2(horizontalMultiplier, rb.velocity.y), ForceMode2D.Impulse);
-        //rb.AddForce(new Vector2(rb.velocity.x, jumpForce * verticalMultiplier), ForceMode2D.Impulse);
-        
+        verticalMultiplier = verticalMultiplier != 0 ? verticalMultiplier : 1;
+        rb.AddForce(new Vector2(rb.velocity.x, jumpForce * verticalMultiplier), ForceMode2D.Impulse);
         jumpState = JumpState.JUMPING;
     }
 
