@@ -1,3 +1,12 @@
+/*
+ * Created by: @feerposser
+ * description: This is an unity script for handling a player controller 2D platform
+ * Features included: move, dash, jump, wall slide, wall jump
+ * 
+ * Repository: https://github.com/feerposser/unity-2d-platform-movement
+ * Gist: https://gist.github.com/feerposser/147fe370a6df710414d7c2728a96c035
+ */
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,20 +38,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] JumpState jumpState = JumpState.FALLING;
     [SerializeField] float horizontalMultiplier = .85f;
     [SerializeField] float fallMultiplier = 5.5f;
-    [SerializeField] float jumpTime = .35f;
-    [SerializeField] float fallingCounter;
-    [SerializeField] float jumpForce = 7;
+    [SerializeField] float fallingCounter = .3f;
+    [SerializeField] float jumpForce = 8;
     [SerializeField] float fallingTime;
 
     [Header("Wall Sliding")]
     [SerializeField] WallslideState wallslideState = WallslideState.DEFAULT;
-    [SerializeField] float maxWallSliderTime = .3f;
     [SerializeField] float groundCheckDistance = -.5f;
+    [SerializeField] float maxWallSliderTime = .3f;
+    [SerializeField] float wallSlideJumpForce = 2;
     [SerializeField] float wallSlidingEndsAt = 0;
     [SerializeField] bool isWallSliding = false;
     [SerializeField] bool isWallJumping = false;
     [SerializeField] float wallDistance = .55f;
-    [SerializeField] float wallSlideJumpForce;
 
     [Header("Dash")]
     [SerializeField] DashState dashState = DashState.DEFAULT;
@@ -51,8 +59,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float dashSpeed = 4.5f;
 
     [Header("Gizmos colors")]
-    [SerializeField] Color groundBoxDetectorColor;
-    [SerializeField] Color wallslideRayDetectorColor;
+    [SerializeField] Color groundBoxDetectorColor = Color.green;
+    [SerializeField] Color wallslideRayDetectorColor = Color.magenta;
 
 
     void Start()
